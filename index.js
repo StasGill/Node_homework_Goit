@@ -1,65 +1,35 @@
-const fs = require("fs"); //Подключение библиотеки для работы с файловой системой
-const path = require("path"); //Подключение библиотеки для работы с путями
-const shortid = require("shortid");
+const argv = require("yargs").argv;
+const {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+} = require("./contact.js");
 
-const contactPath = path.join(__dirname, "db", "contacts.json");
-// const contactPathWrite = path.join(__dirname, "db", "contactss.json");
+// listContacts();
 
-const writeFile = async (contactsPath, data) => {
-  fs.writeFile(contactsPath, data, function (err) {
-    if (err) throw err;
-    console.log("Saved!");
-  });
+const invokeAction = ({ action, id, name, email, phone }) => {
+  switch (action) {
+    case "list":
+      listContacts();
+      break;
+
+    case "get":
+      getContactById(+id);
+      break;
+
+    case "add":
+      addContact(name, email, phone);
+      break;
+
+    case "remove":
+      removeContact(id);
+      break;
+
+    default:
+      console.warn("Unknown action type!");
+  }
 };
 
-const listContacts = async () => {
-  fs.readFile(contactPath, "utf-8", (err, data) => {
-    if (err) {
-      throw err;
-    }
-    const content = JSON.parse(data);
-    console.table(content);
-  });
-};
-
-function getContactById(contactId) {
-  fs.readFile(contactPath, "utf-8", (err, data) => {
-    if (err) {
-      throw err;
-    }
-    const content = JSON.parse(data);
-    const contactById = content.find((item) => item.id === contactId);
-    console.table(contactById);
-  });
-}
-
-function removeContact(contactId) {
-  const filtered = fs.readFile(contactPath, "utf-8", (err, data) => {
-    if (err) {
-      throw err;
-    }
-    const content = JSON.parse(data);
-    const contactById = content.filter((item) => item.id !== contactId);
-    console.table(contactById);
-    const stringifiData = JSON.stringify(contactById);
-    //writeFile(contactPath, stringifiData);
-  });
-}
-removeContact(9);
-
-function addContact(name, email, phone) {
-  const newContact = {
-    id: shortid.generate(),
-    name,
-    email,
-    phone,
-  };
-  fs.readFile(contactPath, "utf-8", (err, data) => {
-    if (err) {
-      throw err;
-    }
-    const content = JSON.parse(data);
-    const contactById = content.push(newContact);
-    console.table(content);
-  });
-}
+//invokeAction(...argv._);
+invokeAction(argv);
