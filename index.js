@@ -4,7 +4,6 @@ const shortid = require("shortid");
 
 const contactPath = path.join(__dirname, "db", "contacts.json");
 const contactPathWrite = path.join(__dirname, "db", "contactss.json");
-console.log(contactPathWrite);
 
 const writeFile = async (contactsPath, data) => {
   fs.appendFile(contactsPath, data, function (err) {
