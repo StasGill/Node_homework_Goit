@@ -3,10 +3,10 @@ const path = require("path"); //Подключение библиотеки дл
 const shortid = require("shortid");
 
 const contactPath = path.join(__dirname, "db", "contacts.json");
-const contactPathWrite = path.join(__dirname, "db", "contactss.json");
+// const contactPathWrite = path.join(__dirname, "db", "contactss.json");
 
 const writeFile = async (contactsPath, data) => {
-  fs.appendFile(contactsPath, data, function (err) {
+  fs.writeFile(contactsPath, data, function (err) {
     if (err) throw err;
     console.log("Saved!");
   });
@@ -42,8 +42,7 @@ function removeContact(contactId) {
     const contactById = content.filter((item) => item.id !== contactId);
     console.table(contactById);
     const stringifiData = JSON.stringify(contactById);
-
-    // writeFile(contactPathWrite, stringifiData);
+    //writeFile(contactPath, stringifiData);
   });
 }
 removeContact(9);
