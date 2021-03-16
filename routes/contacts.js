@@ -2,38 +2,33 @@ const express = require("express");
 const contactsRouter = express.Router();
 const bodyJSON = express.json();
 const shortId = require("shortid");
-const fs = require("fs");
-const path = require("path");
-const contacts = require("../db/contacts.json");
-
-const contactPath = path.join(__dirname, "../", "db", "contacts.json");
-
-//================================================Запись данных
-const writeFile = async (contactsPath, data) => {
-  fs.writeFile(contactsPath, data, function (err) {
-    if (err) throw err;
-    console.log("Saved!");
-  });
-};
+const { writeFile, returnContact, returnIndx } = require("./contactServise");
 
 //================================================Все контакты
 contactsRouter.get("/", (req, res) => {
+  res.statusCode = 200;
+  res.send(returnContact());
+});
+
+//================================================Поиск по имени
+contactsRouter.get("/filter", (req, res) => {
   const { name } = req.query;
 
-  if (name) {
-    const filteredContacts = contacts.filter((item) =>
-      item.name.includes(name)
-    );
-    if (filteredContacts.length == 0) {
-      res.statusCode = 200;
-      res.send();
-    } else {
-      res.statusCode = 200;
-      res.send(filteredContacts);
-    }
+  const filteredContacts = returnContact().filter((item) =>
+    item.name.includes(name)
+  );
+
+  if (filteredContacts.length == 0) {
+    res.statusCode = 200;
+    res.json({
+      status: "Fail",
+      code: 200,
+      message: "Not found",
+    });
+    res.send();
   } else {
     res.statusCode = 200;
-    res.send(contacts);
+    res.send(filteredContacts);
   }
 });
 
@@ -41,7 +36,7 @@ contactsRouter.get("/", (req, res) => {
 contactsRouter.get("/:id", (req, res) => {
   const { id } = req.params;
 
-  const contactById = contacts.find((item) => item.id === +id);
+  const contactById = returnContact().find((item) => item.id === +id);
 
   if (contactById) {
     res.send(contactById);
@@ -66,9 +61,11 @@ contactsRouter.post("/", bodyJSON, (req, res) => {
   };
 
   if (req.body.name && req.body.email && req.body.phone) {
-    contacts.push(newContact);
-    writeFile(contactPath, JSON.stringify(contacts));
-    const lastEl = contacts[contacts.length - 1];
+    const updateContact = returnContact();
+    updateContact.push(newContact);
+
+    writeFile(JSON.stringify(updateContact));
+    const lastEl = updateContact[updateContact.length - 1];
     res.statusCode = 201;
     res.send(lastEl);
   } else {
@@ -86,8 +83,8 @@ contactsRouter.post("/", bodyJSON, (req, res) => {
 contactsRouter.patch("/:id", bodyJSON, (req, res) => {
   const { body } = req;
   const { id } = req.params;
-
-  const indx = contacts.findIndex((item) => item.id === +id);
+  const contacts = returnContact();
+  const indx = returnIndx(id);
 
   if (Object.keys(body).length == 0) {
     res.statusCode = 400;
@@ -99,8 +96,11 @@ contactsRouter.patch("/:id", bodyJSON, (req, res) => {
     res.send();
   } else {
     if (indx !== -1) {
-      contacts[indx] = { ...contacts[indx], ...body };
-      writeFile(contactPath, JSON.stringify(contacts));
+      contacts[indx] = {
+        ...contacts[indx],
+        ...body,
+      };
+      writeFile(JSON.stringify(contacts));
       res.statusCode = 200;
       res.send(contacts[indx]);
     } else {
@@ -118,12 +118,12 @@ contactsRouter.patch("/:id", bodyJSON, (req, res) => {
 //================================================Удаление контакта
 contactsRouter.delete("/:_id", (req, res) => {
   const { _id } = req.params;
-
-  const indx = contacts.findIndex((item) => item.id === +_id);
+  const contacts = returnContact();
+  const indx = returnIndx(_id);
 
   if (indx !== -1) {
     contacts.splice(indx, 1);
-    writeFile(contactPath, JSON.stringify(contacts));
+    writeFile(JSON.stringify(contacts));
     res.json({
       status: "Ok",
       code: 200,
