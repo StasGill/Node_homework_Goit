@@ -39,6 +39,7 @@ contactsRouter.get("/:id", (req, res) => {
   const contactById = returnContact().find((item) => item.id === +id);
 
   if (contactById) {
+    res.statusCode = 200;
     res.send(contactById);
   } else {
     res.statusCode = 404;
@@ -54,7 +55,7 @@ contactsRouter.get("/:id", (req, res) => {
 //================================================Добавление нового контакта
 contactsRouter.post("/", bodyJSON, (req, res) => {
   const newContact = {
-    _id: shortId(),
+    id: shortId(),
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
@@ -116,14 +117,15 @@ contactsRouter.patch("/:id", bodyJSON, (req, res) => {
 });
 
 //================================================Удаление контакта
-contactsRouter.delete("/:_id", (req, res) => {
-  const { _id } = req.params;
+contactsRouter.delete("/:id", (req, res) => {
+  const { id } = req.params;
   const contacts = returnContact();
-  const indx = returnIndx(_id);
+  const indx = returnIndx(id);
 
   if (indx !== -1) {
     contacts.splice(indx, 1);
     writeFile(JSON.stringify(contacts));
+    res.statusCode = 200;
     res.json({
       status: "Ok",
       code: 200,

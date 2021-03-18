@@ -20,7 +20,9 @@ const returnContact = () => {
 
 //================================================Возвращает контакты
 const returnIndx = (id) => {
-  const contactIndx = contacts.findIndex((item) => item.id === +id);
+  const contactIndx = contacts.findIndex((item) =>
+    item.id.toString().includes(id)
+  );
   return contactIndx;
 };
 
