@@ -2,7 +2,12 @@ const express = require("express");
 const contactsRouter = express.Router();
 const bodyJSON = express.json();
 const shortId = require("shortid");
-const { writeFile, returnContact, returnIndx } = require("./contactServise");
+const {
+  writeFile,
+  returnContact,
+  returnIndx,
+  bodyParamCheck,
+} = require("./contactServise");
 
 //================================================Все контакты
 contactsRouter.get("/", (req, res) => {
@@ -60,6 +65,7 @@ contactsRouter.post("/", bodyJSON, (req, res) => {
     email: req.body.email,
     phone: req.body.phone,
   };
+  const bodyFieldFail = bodyParamCheck(req.body);
 
   if (req.body.name && req.body.email && req.body.phone) {
     const updateContact = returnContact();
@@ -74,7 +80,7 @@ contactsRouter.post("/", bodyJSON, (req, res) => {
     res.json({
       status: "Fail",
       code: 204,
-      message: "missing required name field",
+      message: `missing ${bodyFieldFail} field, required!`,
     });
     res.send();
   }
