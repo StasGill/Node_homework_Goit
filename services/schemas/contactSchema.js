@@ -16,7 +16,22 @@ const userSchema = new Schema({
     maxlength: 20,
     unique: true, // match: /[A-z]{2,20}/g,
   },
-  number: Number,
+  phone: {
+    type: Number,
+    required: [true, "Phone is required"],
+    minlength: 2,
+    maxlength: 20,
+    unique: true,
+  },
+  subscription: {
+    type: String,
+  },
+  password: {
+    type: String,
+  },
+  token: {
+    type: String,
+  },
 });
 
 const UserModel = new model("contacts", userSchema);
