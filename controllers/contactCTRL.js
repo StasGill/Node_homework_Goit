@@ -1,8 +1,6 @@
 const { bodyParamCheck } = require("../services/contactRQSTCheck");
 const UserModel = require("../services/schemas/contactSchema");
 
-console.log("some");
-
 async function getAllUser(req, res) {
   try {
     const contacts = await UserModel.find({});
