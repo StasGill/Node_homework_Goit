@@ -1,9 +1,9 @@
 const { bodyParamCheck } = require("../services/contactRQSTCheck");
-const UserModel = require("../services/schemas/contactSchema");
+const ContactModel = require("../services/schemas/contactSchema");
 
 async function getAllUser(req, res) {
   try {
-    const contacts = await UserModel.find({});
+    const contacts = await ContactModel.find({});
     res.json({
       status: "success",
       code: 200,
@@ -12,7 +12,13 @@ async function getAllUser(req, res) {
       },
     });
   } catch (error) {
-    console.log(error);
+    res.statusCode = 404;
+    res.json({
+      status: "Bad",
+      code: 404,
+      message: error,
+    });
+    res.send();
   }
 }
 
@@ -20,7 +26,7 @@ async function getFilteredUser(req, res) {
   try {
     const { name } = req.query;
 
-    const data = await UserModel.find({ name: name });
+    const data = await ContactModel.find({ name: name });
 
     if (data.length == 0) {
       res.statusCode = 200;
@@ -35,14 +41,20 @@ async function getFilteredUser(req, res) {
       res.send(data);
     }
   } catch (error) {
-    console.log(error);
+    res.statusCode = 404;
+    res.json({
+      status: "Bad",
+      code: 404,
+      message: error,
+    });
+    res.send();
   }
 }
 
 async function getByIdUser(req, res) {
   try {
     const { id } = req.params;
-    const data = await UserModel.findById(id);
+    const data = await ContactModel.findById(id);
 
     if (data) {
       res.statusCode = 200;
@@ -64,13 +76,13 @@ async function addNewUser(req, res) {
     const newContact = {
       name: req.body.name,
       email: req.body.email,
-      number: req.body.number,
+      phone: req.body.phone,
     };
 
     const bodyFieldFail = bodyParamCheck(req.body);
 
-    if (req.body.name && req.body.email && req.body.number) {
-      const data = await UserModel.create(newContact);
+    if (req.body.name && req.body.email && req.body.phone) {
+      const data = await ContactModel.create(newContact);
       res.statusCode = 201;
       res.send(data);
     } else {
@@ -83,11 +95,15 @@ async function addNewUser(req, res) {
       res.send();
     }
   } catch (error) {
+    let errorMessage = Object.keys(error.keyValue).toString();
     res.statusCode = 400;
     res.json({
       status: "Fail",
       code: 204,
-      message: `Something wrong`,
+      message: `DB error  ${errorMessage} already in data base`,
+      body: {
+        ...error,
+      },
     });
     res.send(error);
   }
@@ -107,7 +123,7 @@ async function updateUser(req, res) {
       });
       res.send();
     } else {
-      const data = await UserModel.findByIdAndUpdate(
+      const data = await ContactModel.findByIdAndUpdate(
         id,
         { ...body },
         { new: true }
@@ -130,7 +146,7 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
   try {
     const { id } = req.params;
-    const data = await UserModel.findByIdAndDelete(id);
+    const data = await ContactModel.findByIdAndDelete(id);
 
     res.statusCode = 200;
     res.json({

@@ -7,8 +7,8 @@ const bodyParamCheck = (body) => {
   if (!body.email) {
     message += " email,";
   }
-  if (!body.number) {
-    message += " number,";
+  if (!body.phone) {
+    message += " phone,";
   }
 
   if (message) {

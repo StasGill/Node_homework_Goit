@@ -3,12 +3,14 @@ const cors = require("cors");
 const DB = require("./services/DB");
 
 const { contactsRouter } = require("./api/contacts");
+const { authRouter } = require("./api/register");
 
 const app = express();
 
 app.use(cors());
 
 app.use("/api/contacts", contactsRouter);
+app.use("/", authRouter);
 
 const port = process.env.PORT || 3000;
 
