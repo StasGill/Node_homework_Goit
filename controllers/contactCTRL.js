@@ -105,7 +105,7 @@ async function addNewUser(req, res) {
         ...error,
       },
     });
-    res.send(error);
+    res.send();
   }
 }
 
