@@ -13,9 +13,11 @@ const jwtOptions = {
   secretOrKey: secret_key,
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
+
 passport.use(
   new Strategy(jwtOptions, async (payload, done) => {
-    const user = await UserModel.find({ id: payload._id });
+    console.log("PASSPORT STRATEGY");
+    const user = await UserModel.find({ _id: payload.id });
     if (user) {
       done(null, user);
     }

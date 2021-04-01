@@ -10,9 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/contacts", contactsRouter);
-app.use("/", authRouter);
 require("./config/config-passport");
+
+app.use("/api/contacts", contactsRouter);
+app.use("/api/users", authRouter);
 
 const port = process.env.PORT || 3000;
 

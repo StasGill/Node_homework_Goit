@@ -7,22 +7,21 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModels");
 const dotenv = require("dotenv");
 const secret_key = process.env.SECRET_KEY;
+const UserModel = require("../models/userModels");
 
 const loginCheck = (req, res, next) => {
-  passport.authenticate;
-  "jwt",
-    { session: false },
-    (err, user) => {
-      if (!user || error) {
-        return res.status(401).json({
-          status: "Error",
-          code: 401,
-          message: "Error",
-        });
-      }
-      req.user = user;
-      next();
-    };
+  console.log(req.headers);
+  passport.authenticate("jwt", { session: false }, (err, user) => {
+    if (!user || err) {
+      return res.status(401).json({
+        status: "error",
+        code: 401,
+        message: "Not enough status",
+      });
+    }
+    req.user = user;
+    next();
+  });
 };
 //================================================Регистрация
 authRouter.post("/auth/register", register);
@@ -34,7 +33,7 @@ authRouter.post("/auth/login", login);
 authRouter.post("/auth/logout", register);
 
 //================================================Получение данных по токену
-authRouter.get("/users/current", loginCheck, getUser);
+authRouter.get("/current", loginCheck, getUser);
 
 module.exports = {
   authRouter,

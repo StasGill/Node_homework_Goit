@@ -48,7 +48,7 @@ async function login(req, res) {
     });
   }
 
-  const payload = { id: user._id };
+  const payload = { id: user._id, email: user.email };
 
   const token = jwt.sign(payload, secret_key, { expiresIn: "1h" });
   const updateUser = await UserModel.findByIdAndUpdate(
