@@ -100,7 +100,9 @@ async function addNewUser(req, res) {
     res.json({
       status: "Fail",
       code: 204,
-      message: `DB error  ${errorMessage} already in data base`,
+      message: `DB error  ${
+        errorMessage ? errorMessage : "Email or Phone"
+      } already in data base`,
       body: {
         ...error,
       },
