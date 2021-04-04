@@ -1,5 +1,5 @@
 const { bodyParamCheck } = require("../services/contactRQSTCheck");
-const ContactModel = require("../services/schemas/contactSchema");
+const ContactModel = require("../models/contactModels");
 
 async function getAllUser(req, res) {
   try {

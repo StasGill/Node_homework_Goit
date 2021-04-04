@@ -8,9 +8,12 @@ const { authRouter } = require("./api/register");
 const app = express();
 
 app.use(cors());
+app.use(express.json());
+
+require("./config/config-passport");
 
 app.use("/api/contacts", contactsRouter);
-app.use("/", authRouter);
+app.use("/api/users", authRouter);
 
 const port = process.env.PORT || 3000;
 
