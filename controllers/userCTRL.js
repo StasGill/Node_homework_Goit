@@ -3,10 +3,16 @@ const UserModel = require("..//models/userModels");
 const dotenv = require("dotenv");
 dotenv.config();
 const secret_key = process.env.SECRET_KEY;
+const path = require("path");
+const uploadDIR = path.join(process.cwd(), "public/avatar");
+const fs = require("fs").promises;
+var gravatar = require("gravatar");
+var Jimp = require("jimp");
 
 //======================Функция регистрации
 async function register(req, res) {
   const { email, password } = req.body;
+  const avatarURL = path.join("avatar/", "superDuck.png");
 
   if (!email || !password) {
     return res.status(400).json({
@@ -29,7 +35,8 @@ async function register(req, res) {
     });
   }
   try {
-    const newUser = new UserModel({ email, password });
+    const avatarURL = gravatar.url(email);
+    const newUser = new UserModel({ email, password, avatarURL });
 
     await newUser.setPassword(password);
 
@@ -125,9 +132,48 @@ async function getUser(req, res) {
   });
 }
 
+//======================Функция загрузки аватара
+async function getAvatar(req, res) {
+  const { path: temporaryName, originalname } = req.file;
+  const id = req.user[0]._doc._id;
+
+  Jimp.read(temporaryName, (err, lenna) => {
+    if (err) throw err;
+    lenna
+      .resize(250, 250) // resize
+      .quality(60) // set JPEG quality
+      .write(`${uploadDIR}/${id}.jpg`); // save
+  });
+
+  try {
+    const data = await UserModel.findByIdAndUpdate(
+      id,
+      { avatarURL: `localhost:3000/avatar/${id}.jpg` },
+      { new: true }
+    );
+
+    await fs.unlink(temporaryName);
+    res.status(200).json({
+      status: "Success",
+      code: 200,
+      data: { avatarURL: data.avatarURL },
+    });
+  } catch (error) {
+    await fs.unlink(temporaryName);
+
+    res.status(400).json({
+      status: "Error",
+      code: 400,
+      message: "Something going wrong(",
+      data: { ...error },
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
   getUser,
   logout,
+  getAvatar,
 };
