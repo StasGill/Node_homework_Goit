@@ -1,17 +1,25 @@
 const express = require("express");
 const authRouter = express.Router();
 const bodyJSON = express.json();
-const { register, login, getUser, logout } = require("../controllers/userCTRL");
+const {
+  register,
+  login,
+  getUser,
+  logout,
+  getAvatar,
+} = require("../controllers/userCTRL");
 const passport = require("passport");
-const jwt = require("jsonwebtoken");
-const userModel = require("../models/userModels");
-const dotenv = require("dotenv");
-const secret_key = process.env.SECRET_KEY;
-const UserModel = require("../models/userModels");
+// const jwt = require("jsonwebtoken");
+// const userModel = require("../models/userModels");
+// const dotenv = require("dotenv");
+// const secret_key = process.env.SECRET_KEY;
+// const UserModel = require("../models/userModels");
+// const { require } = require("yargs");
+const path = require("path");
+const fs = require("fs").promises;
+const uploadMiddlewar = require("../services/uploadService");
 
 const loginCheck = async (req, res, next) => {
-  // const user = await UserModel.find({ _id: "60642d5406e2bf3b7f554690" });
-  // console.log(user);
   passport.authenticate("jwt", { session: false }, (err, user) => {
     if (!user || err) {
       return res.status(401).json({
@@ -35,6 +43,14 @@ authRouter.post("/auth/logout", loginCheck, logout);
 
 //================================================Получение данных по токену
 authRouter.get("/current", loginCheck, getUser);
+
+//================================================Загрузка аватара
+authRouter.patch(
+  "/avatars",
+  loginCheck,
+  uploadMiddlewar.single("photo"),
+  getAvatar
+);
 
 module.exports = {
   authRouter,

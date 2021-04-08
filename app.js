@@ -4,11 +4,13 @@ const DB = require("./services/DB");
 
 const { contactsRouter } = require("./api/contacts");
 const { authRouter } = require("./api/register");
+const path = require("path");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 require("./config/config-passport");
 

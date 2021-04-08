@@ -23,7 +23,10 @@ const userSchema = new Schema({
   token: {
     type: String,
   },
+  avatarURL: { type: String },
 });
+
+mongoose.set("useFindAndModify", false);
 
 userSchema.methods.setPassword = async function (password) {
   this.token = await bcrypt.hashSync(password, bcrypt.genSaltSync(6));
