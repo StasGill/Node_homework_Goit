@@ -7,6 +7,8 @@ const {
   getUser,
   logout,
   getAvatar,
+  doEmailVerifi,
+  doEmailSendVerifi,
 } = require("../controllers/userCTRL");
 const passport = require("passport");
 // const jwt = require("jsonwebtoken");
@@ -51,6 +53,11 @@ authRouter.patch(
   uploadMiddlewar.single("photo"),
   getAvatar
 );
+
+//================================================Верификация по емейлу
+authRouter.get("/verify/:verificationToken", doEmailVerifi);
+
+authRouter.post("/verify", doEmailSendVerifi);
 
 module.exports = {
   authRouter,
