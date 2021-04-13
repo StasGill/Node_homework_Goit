@@ -8,6 +8,8 @@ const uploadDIR = path.join(process.cwd(), "public/avatar");
 const fs = require("fs").promises;
 var gravatar = require("gravatar");
 var Jimp = require("jimp");
+const sendGrid = require("@sendgrid/mail");
+sendGrid.setApiKey(process.env.EMAIL_TOKEN);
 
 //======================Функция регистрации
 async function register(req, res) {
@@ -170,10 +172,76 @@ async function getAvatar(req, res) {
   }
 }
 
+//======================Функция верификации по емайлу
+async function doEmailVerifi(req, res) {
+  console.log("supaDupaVerification");
+  const user = await UserModel.findOne({
+    token: req.params.verificationToken,
+  });
+  if (!user) {
+    return res.status(404).json({
+      status: "Error",
+      code: 404,
+      message: "Not Found",
+    });
+  }
+  const data = await UserModel.findByIdAndUpdate(
+    user._id,
+    { verify: true },
+    { new: true }
+  );
+  res.status(200).json({
+    status: "Ok",
+    code: 200,
+    message: "'Verification successful'",
+  });
+
+  console.log(user);
+}
+async function doEmailSendVerifi(req, res, next) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      code: 400,
+      message: "Missing required field email",
+    });
+  }
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    return res.status(404).json({
+      code: 404,
+      message: "User not found",
+    });
+  }
+  if (user.verify) {
+    return res.status(400).json({
+      code: 400,
+      message: "Verification has already been passed",
+    });
+  }
+  const message = {
+    to: user.email,
+    from: "3thomas.anderson3@gmail.com",
+    subject: "Verification letter",
+    html: `<p>It seems that last time our letter did not reach you. Here is a new verification link.</p>
+    <a href="http://localhost:3000/api/users/verify/${user.token}">Verification link</a>`,
+  };
+  await sendGrid.send(message).catch((error) => {
+    console.log(`Error: ${error.message}`);
+  });
+  return res.status(200).json({
+    code: 200,
+    message: "Verification email sent",
+  });
+}
+
 module.exports = {
   register,
   login,
   getUser,
   logout,
   getAvatar,
+  doEmailVerifi,
+  doEmailSendVerifi,
 };

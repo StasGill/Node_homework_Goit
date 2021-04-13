@@ -7,7 +7,7 @@ const userSchema = new Schema({
     type: String,
     required: [true, "E-mail is required"],
     minlength: 2,
-    maxlength: 20,
+    maxlength: 30,
   },
   password: {
     type: String,
@@ -24,6 +24,14 @@ const userSchema = new Schema({
     type: String,
   },
   avatarURL: { type: String },
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verifyToken: {
+    type: String,
+    required: [false, "Verify token is required"],
+  },
 });
 
 mongoose.set("useFindAndModify", false);
